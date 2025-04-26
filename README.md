@@ -133,15 +133,15 @@ It runs as quickly as possible, generally around 10 seconds a run.
 
 ### Comparison with Neighboring Actions
 
-| Area     | OctoGuide Rule                                                           | accessibility-alt-text-bot | pr-compliance-action |
-| -------- | ------------------------------------------------------------------------ | -------------------------- | -------------------- |
-| Comments | [comment-meaningless](./docs/comment-meaningless.md)                     |                            |                      |
-| Issues   | [issue-required-fields-content](./docs/issue-required-fields-content.md) |                            |                      |
-| PRs      | [pr-branch-non-default](./docs/pr-branch-non-default.md)                 |                            | ✔️                   |
-| PRs      | [pr-linked-issue](./docs/pr-linked-issue.md)                             |                            | ✔️                   |
-| PRs      | [pr-task-completion](./docs/pr-task-completion.md)                       |                            |                      |
-| PRs      | [pr-title-conventional](./docs/pr-title-conventional.md)                 |                            | ✔️                   |
-| Texts    | [text-image-alt-text](./docs/text-image-alt-text.md)                     | ✔️                         |                      |
+| Area     | OctoGuide Rule                                                                 | accessibility-alt-text-bot | pr-compliance-action |
+| -------- | ------------------------------------------------------------------------------ | -------------------------- | -------------------- |
+| Comments | [comment-meaningless](./docs/rules/comment-meaningless.md)                     |                            |                      |
+| Issues   | [issue-required-fields-content](./docs/rules/issue-required-fields-content.md) |                            |                      |
+| PRs      | [pr-branch-non-default](./docs/rules/pr-branch-non-default.md)                 |                            | ✔️                   |
+| PRs      | [pr-linked-issue](./docs/rules/pr-linked-issue.md)                             |                            | ✔️                   |
+| PRs      | [pr-task-completion](./docs/rules/pr-task-completion.md)                       |                            |                      |
+| PRs      | [pr-title-conventional](./docs/rules/pr-title-conventional.md)                 |                            | ✔️                   |
+| Texts    | [text-image-alt-text](./docs/rules/text-image-alt-text.md)                     | ✔️                         |                      |
 
 ### Other Ecosystem Approaches
 
