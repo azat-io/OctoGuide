@@ -110,6 +110,7 @@ Config key:
 | -------- | -------------------------------------------------------------- | ------------------------------------------- | ------ |
 | All text | [text-image-alt-text](./docs/rules/text-image-alt-text.md)     | images must have accessible alt text        | ✅     |
 | Comments | [comment-meaningless](./docs/rules/comment-meaningless.md)     | should be meaningful, not just '+1' bumps   | 🔒     |
+| PRs      | [pr-body-not-empty](./docs/rules/pr-body-not-empty.md)         | must have a description beyond the template | ✅     |
 | PRs      | [pr-branch-non-default](./docs/rules/pr-branch-non-default.md) | sent from a non-default branch              | 🔒     |
 | PRs      | [pr-linked-issue](./docs/rules/pr-linked-issue.md)             | must be linked to an issue (with a label)   | 🔒     |
 | PRs      | [pr-task-completion](./docs/rules/pr-task-completion.md)       | all required tasks are [x] completed        | ✅     |
@@ -137,6 +138,7 @@ It runs as quickly as possible, generally around 10 seconds a run.
 | -------- | ------------------------------------------------------------------------ | -------------------------- | -------------------- |
 | Comments | [comment-meaningless](./docs/comment-meaningless.md)                     |                            |                      |
 | Issues   | [issue-required-fields-content](./docs/issue-required-fields-content.md) |                            |                      |
+| PRs      | [pr-body-not-empty](./docs/rules/pr-body-not-empty.md)                   |                            |                      |
 | PRs      | [pr-branch-non-default](./docs/pr-branch-non-default.md)                 |                            | ✔️                   |
 | PRs      | [pr-linked-issue](./docs/pr-linked-issue.md)                             |                            | ✔️                   |
 | PRs      | [pr-task-completion](./docs/pr-task-completion.md)                       |                            |                      |
