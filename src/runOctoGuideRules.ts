@@ -1,4 +1,6 @@
 import * as core from "@actions/core";
+import { paginateRest } from "@octokit/plugin-paginate-rest";
+import { Octokit } from "octokit";
 import { octokitFromAuth } from "octokit-from-auth";
 
 import type { EntityActor } from "./actors/types.js";
@@ -69,7 +71,11 @@ export async function runOctoGuideRules({
 	// 2. Using that to create the equivalent actor: requires writing
 	// ...where only 1. is needed for runOctoGuide.
 	// https://github.com/JoshuaKGoldberg/OctoGuide/issues/56
-	const octokit = await octokitFromAuth({ auth });
+	const MyOctokit = Octokit.plugin(paginateRest);
+	const octokit = await octokitFromAuth({
+		auth,
+		Octokit: MyOctokit,
+	});
 	const { actor, locator } = createActor(octokit, url);
 	if (!actor) {
 		throw new Error("Could not resolve GitHub entity actor.");
