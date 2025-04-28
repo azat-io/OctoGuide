@@ -1,6 +1,7 @@
-# `text-image-alt-text`
-
-> Images should have descriptive alt text.
+---
+description: "Images should have descriptive alt text"
+title: "text-image-alt-text"
+---
 
 > Included in config: ✅ recommended, 🔒 strict
 
@@ -21,7 +22,7 @@ Image alt text should briefly explain what's in the image so that a non-visual r
 
 - ✅ `![A GitHub "Octocat" mascot smiling and raising a tentacle](https://myoctocat.com/assets/images/base-octocat.svg)`
 
-## "When Is Alt Text Necessary In Open Source?"
+## “When Is Alt Text Necessary In Open Source?”
 
 _Always_.
 
@@ -34,11 +35,12 @@ They are also always set as links to the image file.
 You should _always_ put proper alt text on images.
 Not doing so restricts users who can't visually see it:
 
-- People who have low or no sight ("blind"), and rely on screenreaders to narrate page contents
+- People who have low or no sight, including people who are "blind", and rely on screenreaders to narrate page contents
 - People who are on slow network connections that take too long to -or cannot at all- download images
 
 ## See More
 
 - [github/accessibility-alt-text-bot](https://github.com/github/accessibility-alt-text-bot): a GitHub Action dedicated to image alt text detection
 - [GitHub Docs: Basic writing and formatting syntax > Images](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#images)
-- [Rule source](../../src/rules/textImageAltText.ts)
+- [Rule source](https://github.com/JoshuaKGoldberg/OctoGuide/blob/main/src/rules/textImageAltText.ts)
+- [Rule tests](https://github.com/JoshuaKGoldberg/OctoGuide/blob/main/src/rules/textImageAltText.test.ts)

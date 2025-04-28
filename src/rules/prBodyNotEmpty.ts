@@ -1,8 +1,7 @@
-import type { Rule } from "../types/rules.js";
-
 import { wrapSafe } from "../types/utils.js";
+import { defineRule } from "./defineRule.js";
 
-export const prBodyNotEmpty = {
+export const prBodyNotEmpty = defineRule({
 	about: {
 		config: "recommended",
 		description: "PRs should have a description beyond the template.",
@@ -76,4 +75,4 @@ export const prBodyNotEmpty = {
 			});
 		}
 	},
-} satisfies Rule;
+});

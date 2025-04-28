@@ -1,8 +1,9 @@
-# `pr-branch-non-default`
+---
+description: "PRs should not be sent from their head repository's default branch"
+title: "pr-branch-non-default"
+---
 
-> PRs should not be sent from their head repository's default branch.
-
-> Included in config: 🔒 strict
+> Included in configs: ✅ recommended, 🔒 strict
 
 Sending a PR from a repository's default branch, commonly `main`, means that repository will have a hard time pulling in updates from the upstream repository.
 It's generally recommended to instead create a new branch per pull request.
@@ -28,4 +29,5 @@ You'll want to:
 ## See More
 
 - [GitHub Docs: Creating a pull request from a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
-- [Rule source](../../src/rules/prBranchNonDefault.ts)
+- [Rule source](https://github.com/JoshuaKGoldberg/OctoGuide/blob/main/src/rules/prBranchNonDefault.ts)
+- [Rule tests](https://github.com/JoshuaKGoldberg/OctoGuide/blob/main/src/rules/prBranchNonDefault.test.ts)
