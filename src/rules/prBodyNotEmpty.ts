@@ -5,7 +5,7 @@ import { wrapSafe } from "../types/utils.js";
 export const prBodyNotEmpty = {
 	about: {
 		config: "recommended",
-		description: "PR should have a description beyond the template.",
+		description: "PRs should have a description beyond the template.",
 		explanation: [
 			`This repository expects pull requests to include a description explaining the changes.`,
 			`The description should have at least one word not in the PR template, or any content if no template exists.`,

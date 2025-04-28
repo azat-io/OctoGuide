@@ -8,7 +8,6 @@ This repository expects pull requests to include a description explaining the ch
 The description should have at least one word not in the PR template, or any content if no template exists.
 
 Pull requests should include meaningful descriptions that explain the purpose and context of the changes.
-
 This helps reviewers understand what's being changed and why, making the review process more efficient.
 
 ## Requirements
