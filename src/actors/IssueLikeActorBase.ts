@@ -36,9 +36,39 @@ export abstract class IssueLikeActorBase<
 		return response.data.html_url;
 	}
 
+	async findComment(id: number): Promise<CommentData | undefined> {
+		const comments = await this.listComments((comment) => comment.id === id);
+		return comments[0];
+	}
+
 	abstract getData(): Promise<Data>;
 
-	async listComments() {
+	async listComments(filter?: (comment: CommentData) => boolean) {
+		if (filter) {
+			const iterator = this.octokit.paginate.iterator(
+				this.octokit.rest.issues.listComments,
+				{
+					issue_number: this.entityNumber,
+					owner: this.locator.owner,
+					repo: this.locator.repository,
+				},
+			);
+
+			const comments: CommentData[] = [];
+			for await (const response of iterator) {
+				const batch = response.data;
+
+				const matchingComments = batch.filter(filter);
+				comments.push(...matchingComments);
+
+				if (matchingComments.length > 0) {
+					break;
+				}
+			}
+
+			return comments;
+		}
+
 		const comments = await this.octokit.paginate(
 			this.octokit.rest.issues.listComments,
 			{
@@ -52,6 +82,11 @@ export abstract class IssueLikeActorBase<
 	}
 
 	async updateComment(number: number, newBody: string) {
+		const comment = await this.findComment(number);
+		if (!comment) {
+			throw new Error(`Comment with ID ${number} not found`);
+		}
+
 		await this.octokit.rest.issues.updateComment({
 			body: newBody,
 			comment_id: number,

@@ -26,7 +26,12 @@ interface GetDiscussionResponse {
 export abstract class DiscussionActorBase<
 	Data extends CommentData | DiscussionData,
 > extends EntityActorBase<Data> {
-	async listComments() {
+	async findComment(id: number): Promise<DiscussionCommentData | undefined> {
+		const comments = await this.listComments((comment) => comment.id === id);
+		return comments[0];
+	}
+
+	async listComments(filter?: (comment: DiscussionCommentData) => boolean) {
 		const iterator = this.octokit.paginate.iterator(
 			"GET /repos/{owner}/{repo}/discussions/{discussion_number}/comments",
 			{
@@ -38,17 +43,26 @@ export abstract class DiscussionActorBase<
 
 		const comments: DiscussionCommentData[] = [];
 		for await (const response of iterator) {
-			comments.push(...(response.data as DiscussionCommentData[]));
+			const batch = response.data as DiscussionCommentData[];
+
+			if (filter) {
+				const matchingComments = batch.filter(filter);
+				comments.push(...matchingComments);
+
+				if (matchingComments.length > 0) {
+					break;
+				}
+			} else {
+				comments.push(...batch);
+			}
 		}
 
 		return comments;
 	}
 
 	async updateComment(number: number, newBody: string) {
-		const comments = await this.listComments();
-
-		const nodeId = comments.find((comment) => comment.id === number)?.node_id;
-		if (!nodeId) {
+		const comment = await this.findComment(number);
+		if (!comment?.node_id) {
 			throw new Error(`Comment with ID ${number} not found`);
 		}
 
@@ -69,7 +83,7 @@ export abstract class DiscussionActorBase<
 			`,
 			{
 				body: newBody,
-				commentId: nodeId,
+				commentId: comment.node_id,
 			},
 		);
 	}
