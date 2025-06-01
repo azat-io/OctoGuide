@@ -5,7 +5,8 @@ import type { RepositoryLocator } from "../types/data.js";
 import { wrapSafe } from "../types/utils.js";
 
 /**
- * Paths where GitHub PR templates might be located according to GitHub documentation
+ * Paths where GitHub PR templates might be located according to GitHub documentation.
+ * Order matters: the first one found will be used.
  * @see https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository
  */
 export const PR_TEMPLATE_PATHS = [
@@ -15,61 +16,111 @@ export const PR_TEMPLATE_PATHS = [
 	"docs/pull_request_template.md",
 ];
 
+const PR_TEMPLATE_DIR = ".github/PULL_REQUEST_TEMPLATE";
+
+interface GraphQLEntry {
+	name: string;
+	path: string;
+	type: string;
+}
+
+interface GraphQLFileObject {
+	text?: string;
+}
+
+interface GraphQLRepositoryObject {
+	[key: `file${number}`]: GraphQLFileObject | null;
+	templateDir?: GraphQLTreeObject | null;
+}
+
+interface GraphQLResponse {
+	repository: GraphQLRepositoryObject | null;
+}
+
+interface GraphQLTreeObject {
+	entries?: GraphQLEntry[];
+}
+
 export async function findPrTemplate(
 	octokit: Octokit,
 	locator: RepositoryLocator,
 ): Promise<null | string> {
-	for (const path of PR_TEMPLATE_PATHS) {
-		const response = await wrapSafe(
-			octokit.rest.repos.getContent({
-				owner: locator.owner,
-				path,
-				repo: locator.repository,
-			}),
-		);
+	const { owner, repository } = locator;
 
-		if (
-			response &&
-			!Array.isArray(response.data) &&
-			response.data.type === "file"
-		) {
-			return Buffer.from(response.data.content, "base64").toString("utf-8");
-		}
-	}
+	const fileQueries = PR_TEMPLATE_PATHS.map(
+		(path, index) => `
+		file${index}: object(expression: "HEAD:${path}") {
+			... on Blob {
+				text
+			}
+		}`,
+	).join("\n");
 
-	const templateDirPath = ".github/PULL_REQUEST_TEMPLATE";
-	const dirResponse = await wrapSafe(
-		octokit.rest.repos.getContent({
-			owner: locator.owner,
-			path: templateDirPath,
-			repo: locator.repository,
-		}),
-	);
+	const directoryQuery = `
+		templateDir: object(expression: "HEAD:${PR_TEMPLATE_DIR}") {
+			... on Tree {
+				entries {
+					name
+					type
+					path
+				}
+			}
+		}`;
 
-	if (dirResponse && Array.isArray(dirResponse.data)) {
-		const templateFile = dirResponse.data.find(
-			(file) => file.type === "file" && file.name.endsWith(".md"),
-		);
+	const fullQuery = `
+		query($owner: String!, $repo: String!) {
+			repository(owner: $owner, name: $repo) {
+				${fileQueries}
+				${directoryQuery}
+			}
+		}`;
 
-		if (templateFile?.path) {
-			const fileResponse = await wrapSafe(
-				octokit.rest.repos.getContent({
-					owner: locator.owner,
-					path: templateFile.path,
-					repo: locator.repository,
-				}),
-			);
+	try {
+		const graphqlResponse = await octokit.graphql<GraphQLResponse>(fullQuery, {
+			owner,
+			repo: repository,
+		});
 
-			if (
-				fileResponse &&
-				!Array.isArray(fileResponse.data) &&
-				fileResponse.data.type === "file"
-			) {
-				return Buffer.from(fileResponse.data.content, "base64").toString(
-					"utf-8",
+		if (graphqlResponse.repository) {
+			for (let i = 0; i < PR_TEMPLATE_PATHS.length; i++) {
+				const fileData = graphqlResponse.repository[`file${i}`];
+				if (fileData && typeof fileData.text === "string") {
+					return fileData.text;
+				}
+			}
+
+			const templateDirData = graphqlResponse.repository.templateDir;
+			if (templateDirData?.entries) {
+				const firstMarkdownFile = templateDirData.entries.find(
+					(entry) => entry.type === "blob" && entry.name.endsWith(".md"),
 				);
+
+				if (firstMarkdownFile?.path) {
+					const fileContentResponse = await wrapSafe(
+						octokit.rest.repos.getContent({
+							owner,
+							path: firstMarkdownFile.path,
+							repo: repository,
+						}),
+					);
+
+					if (
+						fileContentResponse &&
+						!Array.isArray(fileContentResponse.data) &&
+						fileContentResponse.data.type === "file" &&
+						"content" in fileContentResponse.data
+					) {
+						return Buffer.from(
+							fileContentResponse.data.content,
+							"base64",
+						).toString("utf-8");
+					}
+				}
 			}
 		}
+	} catch (error) {
+		console.error("Error fetching PR template with GraphQL:", error);
+		return null;
 	}
 
 	return null;
