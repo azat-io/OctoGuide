@@ -1,3 +1,5 @@
+import type { Octokit } from "octokit";
+
 import { describe, expect, it, vi } from "vitest";
 
 import { testRule } from "../tests/testRule.js";
@@ -39,6 +41,9 @@ describe(prBodyNotEmpty.about.name, () => {
 			},
 			{
 				octokit: {
+					graphql: vi.fn().mockResolvedValue({
+						repository: {},
+					}) as unknown as Octokit["graphql"],
 					rest: {
 						repos: {
 							getContent: vi.fn().mockRejectedValue(new Error("Not found")),
@@ -70,6 +75,11 @@ describe(prBodyNotEmpty.about.name, () => {
 			},
 			{
 				octokit: {
+					graphql: vi.fn().mockResolvedValue({
+						repository: {
+							file0: { text: templateContent },
+						},
+					}) as unknown as Octokit["graphql"],
 					rest: {
 						repos: {
 							getContent: vi.fn().mockResolvedValueOnce({
@@ -107,6 +117,9 @@ describe(prBodyNotEmpty.about.name, () => {
 			},
 			{
 				octokit: {
+					graphql: vi.fn().mockResolvedValue({
+						repository: {},
+					}) as unknown as Octokit["graphql"],
 					rest: {
 						repos: {
 							getContent: vi.fn().mockRejectedValue(new Error("Not found")),
@@ -136,6 +149,11 @@ describe(prBodyNotEmpty.about.name, () => {
 			},
 			{
 				octokit: {
+					graphql: vi.fn().mockResolvedValue({
+						repository: {
+							file0: { text: templateContent },
+						},
+					}) as unknown as Octokit["graphql"],
 					rest: {
 						repos: {
 							getContent: vi.fn().mockResolvedValueOnce({
@@ -171,6 +189,11 @@ describe(prBodyNotEmpty.about.name, () => {
 			},
 			{
 				octokit: {
+					graphql: vi.fn().mockResolvedValue({
+						repository: {
+							file0: { text: templateContent },
+						},
+					}) as unknown as Octokit["graphql"],
 					rest: {
 						repos: {
 							getContent: vi.fn().mockResolvedValueOnce({
@@ -204,6 +227,11 @@ describe(prBodyNotEmpty.about.name, () => {
 			},
 			{
 				octokit: {
+					graphql: vi.fn().mockResolvedValue({
+						repository: {
+							file0: { text: templateContent },
+						},
+					}) as unknown as Octokit["graphql"],
 					rest: {
 						repos: {
 							getContent: vi.fn().mockResolvedValueOnce({
@@ -245,6 +273,11 @@ describe(prBodyNotEmpty.about.name, () => {
 			},
 			{
 				octokit: {
+					graphql: vi.fn().mockResolvedValue({
+						repository: {
+							file0: { text: templateContent },
+						},
+					}) as unknown as Octokit["graphql"],
 					rest: {
 						repos: {
 							getContent: vi.fn().mockResolvedValueOnce({
