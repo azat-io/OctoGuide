@@ -21,6 +21,7 @@ export default defineConfig({
 			components: {
 				Footer: "./src/components/Footer.astro",
 				Head: "./src/components/Head.astro",
+				SiteTitle: "./src/components/SiteTitle.astro",
 				TwoColumnContent: "./src/components/TwoColumnContent.astro",
 			},
 			customCss: ["./src/styles/global.css"],
