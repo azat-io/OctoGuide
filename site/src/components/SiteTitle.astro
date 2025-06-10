@@ -1,8 +1,10 @@
 ---
+import type { ComponentProps } from "astro/types";
+
 import Default from "@astrojs/starlight/components/SiteTitle.astro";
 import { version } from "../../../package.json";
 
-export type Props = any;
+export type Props = ComponentProps<typeof Default>;
 ---
 
 <Default {...Astro.props}>
@@ -33,11 +35,5 @@ export type Props = any;
 
 	.version-link:hover {
 		opacity: 0.66;
-	}
-
-	@media (max-width: 50rem) {
-		.version-link {
-			display: none;
-		}
 	}
 </style>
