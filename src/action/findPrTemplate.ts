@@ -2,8 +2,6 @@ import type { Octokit } from "octokit";
 
 import type { RepositoryLocator } from "../types/data.js";
 
-import { wrapSafe } from "../types/utils.js";
-
 /**
  * Paths where GitHub PR templates might be located according to GitHub documentation.
  * Order matters: the first one found will be used.
@@ -96,24 +94,32 @@ export async function findPrTemplate(
 				);
 
 				if (firstMarkdownFile?.path) {
-					const fileContentResponse = await wrapSafe(
-						octokit.rest.repos.getContent({
-							owner,
-							path: firstMarkdownFile.path,
-							repo: repository,
-						}),
-					);
+					const fileContentQuery = `
+						query($owner: String!, $repo: String!, $path: String!) {
+							repository(owner: $owner, name: $repo) {
+								object(expression: $path) {
+									... on Blob {
+										text
+									}
+								}
+							}
+						}`;
+
+					const fileContentResponse = await octokit.graphql<{
+						repository: null | {
+							object: null | { text?: string };
+						};
+					}>(fileContentQuery, {
+						owner,
+						path: `HEAD:${firstMarkdownFile.path}`,
+						repo: repository,
+					});
 
 					if (
-						fileContentResponse &&
-						!Array.isArray(fileContentResponse.data) &&
-						fileContentResponse.data.type === "file" &&
-						"content" in fileContentResponse.data
+						fileContentResponse.repository?.object &&
+						typeof fileContentResponse.repository.object.text === "string"
 					) {
-						return Buffer.from(
-							fileContentResponse.data.content,
-							"base64",
-						).toString("utf-8");
+						return fileContentResponse.repository.object.text;
 					}
 				}
 			}

@@ -14,24 +14,17 @@ describe("findPrTemplate", () => {
 		repository: "test-repo",
 	};
 	const mockTemplate = "# PR Template\n- [ ] Task 1\n- [ ] Task 2";
-	const mockBase64Template = Buffer.from(mockTemplate).toString("base64");
 
 	const graphqlMock = vi.fn();
-	const getContentMock = vi.fn();
 
 	const mockOctokit = {
 		graphql: graphqlMock,
-		rest: {
-			repos: {
-				getContent: getContentMock,
-			},
-		},
 	} as unknown as Octokit;
 
 	beforeEach(() => {
 		vi.resetAllMocks();
 		graphqlMock.mockResolvedValue({ repository: {} });
-		getContentMock.mockRejectedValue(new Error("Not found by getContent"));
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		vi.spyOn(console, "error").mockImplementation(() => {});
 	});
 
@@ -77,36 +70,43 @@ describe("findPrTemplate", () => {
 			],
 		};
 
-		graphqlMock.mockResolvedValue({ repository: mockRepoData });
-		getContentMock.mockResolvedValue({
-			data: {
-				content: mockBase64Template,
-				type: "file",
-			},
-		});
+		graphqlMock
+			.mockResolvedValueOnce({ repository: mockRepoData })
+			.mockResolvedValueOnce({
+				repository: {
+					object: {
+						text: mockTemplate,
+					},
+				},
+			});
 
 		const result = await findPrTemplate(mockOctokit, mockLocator);
 
 		expect(result).toBe(mockTemplate);
-		expect(graphqlMock).toHaveBeenCalledWith(
+		expect(graphqlMock).toHaveBeenCalledTimes(2);
+		expect(graphqlMock).toHaveBeenNthCalledWith(
+			1,
 			expect.stringContaining(
 				`templateDir: object(expression: "HEAD:${PR_TEMPLATE_DIR_PATH}")`,
 			),
 			{ owner: mockLocator.owner, repo: mockLocator.repository },
 		);
-		expect(getContentMock).toHaveBeenCalledWith({
-			owner: mockLocator.owner,
-			path: `${PR_TEMPLATE_DIR_PATH}/template.md`,
-			repo: mockLocator.repository,
-		});
+		expect(graphqlMock).toHaveBeenNthCalledWith(
+			2,
+			expect.stringContaining("object(expression: $path)"),
+			{
+				owner: mockLocator.owner,
+				path: `HEAD:${PR_TEMPLATE_DIR_PATH}/template.md`,
+				repo: mockLocator.repository,
+			},
+		);
 	});
 
-	it("should return null if no template is found via GraphQL and getContent for dir", async () => {
+	it("should return null if no template is found via GraphQL", async () => {
 		const result = await findPrTemplate(mockOctokit, mockLocator);
 
 		expect(result).toBeNull();
 		expect(graphqlMock).toHaveBeenCalledTimes(1);
-		expect(getContentMock).not.toHaveBeenCalled();
 	});
 
 	it("should return null if templateDir has no markdown files", async () => {
@@ -128,7 +128,6 @@ describe("findPrTemplate", () => {
 		const result = await findPrTemplate(mockOctokit, mockLocator);
 		expect(result).toBeNull();
 		expect(graphqlMock).toHaveBeenCalledTimes(1);
-		expect(getContentMock).not.toHaveBeenCalled();
 	});
 
 	it("should handle GraphQL API errors gracefully", async () => {
@@ -138,10 +137,9 @@ describe("findPrTemplate", () => {
 
 		expect(result).toBeNull();
 		expect(graphqlMock).toHaveBeenCalledTimes(1);
-		expect(getContentMock).not.toHaveBeenCalled();
 	});
 
-	it("should handle getContent API errors gracefully when fetching from directory", async () => {
+	it("should handle GraphQL API errors gracefully when fetching from directory", async () => {
 		const mockRepoData: Record<string, unknown> = {};
 		PR_TEMPLATE_PATHS.forEach((p, i) => {
 			mockRepoData[`file${i}`] = null;
@@ -155,12 +153,12 @@ describe("findPrTemplate", () => {
 				},
 			],
 		};
-		graphqlMock.mockResolvedValue({ repository: mockRepoData });
-		getContentMock.mockRejectedValue(new Error("getContent API Error"));
+		graphqlMock
+			.mockResolvedValueOnce({ repository: mockRepoData })
+			.mockRejectedValueOnce(new Error("GraphQL API Error"));
 
 		const result = await findPrTemplate(mockOctokit, mockLocator);
 		expect(result).toBeNull();
-		expect(graphqlMock).toHaveBeenCalledTimes(1);
-		expect(getContentMock).toHaveBeenCalledTimes(1);
+		expect(graphqlMock).toHaveBeenCalledTimes(2);
 	});
 });
