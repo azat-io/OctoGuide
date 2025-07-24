@@ -102,14 +102,14 @@ describe("findPrTemplate", () => {
 		);
 	});
 
-	it("should return null if no template is found via GraphQL", async () => {
+	it("should return undefined if no template is found via GraphQL", async () => {
 		const result = await findPrTemplate(mockOctokit, mockLocator);
 
-		expect(result).toBeNull();
+		expect(result).toBeUndefined();
 		expect(graphqlMock).toHaveBeenCalledTimes(1);
 	});
 
-	it("should return null if templateDir has no markdown files", async () => {
+	it("should return undefined if templateDir has no markdown files", async () => {
 		const mockRepoData: Record<string, unknown> = {};
 		PR_TEMPLATE_PATHS.forEach((p, i) => {
 			mockRepoData[`file${i}`] = null;
@@ -126,7 +126,7 @@ describe("findPrTemplate", () => {
 		graphqlMock.mockResolvedValue({ repository: mockRepoData });
 
 		const result = await findPrTemplate(mockOctokit, mockLocator);
-		expect(result).toBeNull();
+		expect(result).toBeUndefined();
 		expect(graphqlMock).toHaveBeenCalledTimes(1);
 	});
 
@@ -135,7 +135,7 @@ describe("findPrTemplate", () => {
 
 		const result = await findPrTemplate(mockOctokit, mockLocator);
 
-		expect(result).toBeNull();
+		expect(result).toBeUndefined();
 		expect(graphqlMock).toHaveBeenCalledTimes(1);
 	});
 
@@ -158,7 +158,7 @@ describe("findPrTemplate", () => {
 			.mockRejectedValueOnce(new Error("GraphQL API Error"));
 
 		const result = await findPrTemplate(mockOctokit, mockLocator);
-		expect(result).toBeNull();
+		expect(result).toBeUndefined();
 		expect(graphqlMock).toHaveBeenCalledTimes(2);
 	});
 });

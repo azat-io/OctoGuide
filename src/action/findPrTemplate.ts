@@ -42,7 +42,7 @@ interface GraphQLTreeObject {
 export async function findPrTemplate(
 	octokit: Octokit,
 	locator: RepositoryLocator,
-): Promise<null | string> {
+): Promise<string | undefined> {
 	const { owner, repository } = locator;
 
 	const fileQueries = PR_TEMPLATE_PATHS.map(
@@ -126,8 +126,8 @@ export async function findPrTemplate(
 		}
 	} catch (error) {
 		console.error("Error fetching PR template with GraphQL:", error);
-		return null;
+		return undefined;
 	}
 
-	return null;
+	return undefined;
 }
